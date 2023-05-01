@@ -1,0 +1,5 @@
+[homeassistant_servers]
+HASSHOST
+
+[backup_servers]
+BACKUPHOST
