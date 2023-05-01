@@ -1,0 +1,17 @@
+---
+#  Role: backup
+#  Author: Jenda Brands (https://github.com/jendab)
+#  Description: All tasks for the backup role
+#
+
+- name: Make sure rsync is installed
+  apt:
+    name: rsync
+    state: present
+
+- include_tasks: tasks_client_keys.yml
+  loop: "{{ bak.paths }}"
+  loop_control:
+    loop_var: path
+
+# vim:ft=yaml:ai:si:ts=4:sw=4:et:

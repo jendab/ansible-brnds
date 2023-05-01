@@ -1,0 +1,53 @@
+---
+#
+#  Role: backup
+#  Author: Jenda Brands (https://github.com/jendab)
+#  Description: All defaults for the backup role
+#
+
+backup:
+  host: BACKUPHOST
+  data_dir: "/data"
+  script_path: "/opt/scripts/backup.sh"  
+  ssh:
+    priv: "{{ vault.backup.ssh.priv }}"
+    pub: "{{ vault.backup.ssh.pub }}"
+  user:
+    name: svc_backup
+    group: svc_backup
+    home: "/home/svc_backup"
+  restic:
+    binary_path: "/usr/bin/restic"
+    script_path_local: "/opt/scripts/restic_backup_local.sh"
+    script_path_external: "/opt/scripts/restic_backup_external.sh"
+    repos:
+      - name: local
+        pass_file: "local"
+        pass: "{{ vault.backup.restic.repos.local.pw }}"
+        cron: "25 1 * * *"
+        repo_path: "/data/all"
+        backup_path: "/data"
+        exclusions:
+          - "all/"
+          - "external/"
+          - "lost\\+found/"
+        forget_policy:
+          daily: 7
+          weekly: 10
+          monthly: 12
+          yearly: 10
+      - name: external
+        pass_file: "external"
+        pass: "{{ vault.backup.restic.repos.external.pw }}"
+        cron: "25 3 * * *"
+        repo_path: "/data/external/backups/"
+        backup_path: "/data"
+        exclusions:
+          - "all/"
+          - "external/"
+          - "lost\\+found/"
+        forget_policy:
+          daily: 7
+          weekly: 10
+          monthly: 12
+          yearly: 10

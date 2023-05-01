@@ -1,0 +1,61 @@
+---
+#  Role: backup
+#  Author: Jenda Brands (https://github.com/jendab)
+#  Description: All tasks for the backup role
+#
+
+- name: Check if initialization is needed
+  stat:
+    path: "{{ backup.user.home }}/.ssh"
+  register: init
+  delegate_to: "{{ backup.host }}"
+
+- include_tasks: tasks_init_backup_host.yml
+  when: not init.stat.exists
+
+- name: Make sure .restic exists
+  file:
+    path: "{{ backup.user.home }}/.restic"
+    state: directory
+    owner: "{{ backup.user.name }}"
+    group: "{{ backup.user.group }}"
+  delegate_to: "{{ backup.host }}"
+
+- name: Manage restic credentials
+  template:
+    src: restic_creds.j2
+    dest: "{{ backup.user.home }}/.restic/{{ repo.pass_file }}"
+    owner: "{{ backup.user.name }}"
+    group: "{{ backup.user.group }}"
+    mode: "0600"
+  delegate_to: "{{ backup.host }}"
+  no_log: true
+  loop: "{{ backup.restic.repos }}"
+  loop_control:
+    loop_var: repo
+
+- include_tasks: tasks_keypair.yml
+  loop: "{{ bak.paths }}"
+  loop_control:
+    loop_var: path
+
+- name: Add cron entry for rsync
+  template:
+    src: backups.cron.j2
+    dest: "/etc/cron.d/backup-{{ hostname }}-{{ bak.app }}-{{ path.title }}"
+  delegate_to: "{{ backup.host }}"
+  loop: "{{ bak.paths }}"
+  loop_control:
+    loop_var: path
+
+- name: Add cron entries for restic
+  template:
+    src: restic-backup.cron.j2
+    dest: "/etc/cron.d/backup-restic-{{ repo.name }}"
+  delegate_to: "{{ backup.host }}"
+  no_log: true
+  loop: "{{ backup.restic.repos }}"
+  loop_control:
+    loop_var: repo
+
+# vim:ft=yaml:ai:si:ts=4:sw=4:et:

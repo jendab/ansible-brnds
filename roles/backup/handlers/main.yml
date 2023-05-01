@@ -1,0 +1,9 @@
+---
+#
+#  Role: backup
+#  Author: Jenda Brands (https://github.com/jendab)
+#  Description: All handlers for the backup role
+#
+
+- name: Backup - Combine authorized_keys
+  shell: "cat /root/.ssh/authorized_keys_* >> /root/.ssh/authorized_keysbak"

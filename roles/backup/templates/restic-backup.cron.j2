@@ -1,0 +1,1 @@
+{{ repo.cron }} {{ backup.user.name }} {{ backup.restic.binary_path }} -r {{ repo.repo_path }} -p {{ backup.user.home }}/.restic/{{ repo.pass_file }} backup {{ repo.backup_path }} {% for exclusion in repo.exclusions %}--exclude "{{ exclusion }}" {% endfor %}

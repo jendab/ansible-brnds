@@ -1,0 +1,68 @@
+---
+#  Role: homeassistant
+#  Author: Jenda Brands (https://github.com/jendab)
+#  Description: All tasks for the homeassistant role
+#
+
+- name: Create user for hass
+  user: 
+    name: "{{ homeassistant.user }}"
+    create_home: yes
+    groups: ['pyenv']
+    append: true
+    state: present
+
+- include_role:
+    name: pyenv
+  vars:
+    python_version: "{{ homeassistant.python_version }}"
+
+- name: Check if virtualenv already exists
+  stat:
+    path: "{{ homeassistant.install_path }}"
+  register: venv
+
+- name: Create virtualenvironment
+  shell: "cd /home/{{ homeassistant.user }}; sudo -u {{ homeassistant.user }} bash -c 'source /etc/profile.d/pyenv.sh && /opt/pyenv/bin/pyenv virtualenv {{ homeassistant.python_version }} hass'"
+  when: not (venv.stat.islnk is defined and venv.stat.islnk)
+
+- name: Ensure prerequisites are installed
+  apt:
+    name: ['default-libmysqlclient-dev']
+    state: present
+
+- name: Install homeassistant
+  pip:
+    name: ['homeassistant', 'pymysql', 'mysqlclient']
+    virtualenv: "{{ homeassistant.install_path }}"
+    virtualenv_python: "python{{ homeassistant.python_version }}"
+    state: present
+  become: yes
+  become_user: hass
+
+- name: Ensure systemd config exists
+  template:
+    src: hass.service.j2
+    dest: "/etc/systemd/system/hass.service"
+  register: systemd
+
+- name: Start homeassistant
+  systemd:
+    name: hass
+    enabled: yes
+    state: started
+    daemon_reload: "{% if systemd.changed  %}true{% else %}false{% endif %}"
+  
+- include_role:
+    name: backup
+  vars:
+    bak:
+      hostname: "{{ hostname }}"
+      app: homeassistant
+      cron: "40 3 * * *"
+      paths:
+        - path: "{{ homeassistant.config_path }}"
+          title: homeassistant
+          type: root_fs
+
+# vim:ft=yaml:ai:si:ts=4:sw=4:et:

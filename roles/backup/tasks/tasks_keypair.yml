@@ -1,0 +1,25 @@
+
+- name: Check if keypair already exists
+  stat:
+    path: "{{ backup.user.home }}/.ssh/id_ed25519_{{ bak.app }}_{{ path.title }}"
+  register: key
+  delegate_to: "{{ backup.host }}"
+
+- name: Generate keypair if it doesn't exist yet
+  openssh_keypair:
+    path: "{{ backup.user.home }}/.ssh/id_ed25519_{{ bak.app }}_{{ path.title }}"
+    type: ed25519
+    comment: "Key to perform backup of {{ bak.app }} {{ path.title }}"
+    mode: 0600
+    owner: "{{ backup.user.name }}"
+    group: "{{ backup.user.group }}"
+  when: not key.stat.exists
+  delegate_to: "{{ backup.host }}"
+
+- name: Ensure directories exist
+  file:
+    path: "{{ backup.data_dir }}/{{ bak.hostname }}/{{ bak.app }}/{{ path.title }}"
+    state: directory
+    owner: "{{ backup.user.name }}"
+    group: "{{ backup.user.group }}"
+  delegate_to: "{{ backup.host }}"

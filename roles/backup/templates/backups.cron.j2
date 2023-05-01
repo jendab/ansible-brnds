@@ -1,0 +1,1 @@
+{{ bak.cron }} {{ backup.user.name }} {{ backup.script_path }} -n {{ path.title }} -p {{ hostvars[bak.hostname].ansible_host }} -u root -i {{ backup.user.home }}/.ssh/id_ed25519_{{ bak.app }}_{{ path.title }} -d {{ backup.data_dir }}/{{ bak.hostname }}/{{ bak.app }}/{{ path.title }} -s {{ path.path }}

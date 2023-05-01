@@ -1,0 +1,14 @@
+---
+#  Role: pyenv
+#  Author: Jenda Brands (https://github.com/jendab)
+#  Description: All tasks to upgrade pyenv
+#
+
+
+- name: Pull latest version of pyenv
+  git:
+    repo: "{{ pyenv.github_repo }}"
+    dest: "{{ pyenv.install_path }}"
+    update: yes
+
+# vim:ft=yaml:ai:si:ts=4:sw=4:et:

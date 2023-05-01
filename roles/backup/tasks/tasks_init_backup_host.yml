@@ -1,0 +1,53 @@
+---
+#  Role: backup
+#  Author: Jenda Brands (https://github.com/jendab)
+#  Description: All tasks for the backup role
+#
+
+- name: Make sure the backup group is present
+  group:
+    name: "{{ backup.user.group }}"
+  delegate_to: "{{ backup.host }}"
+
+- name: Make sure the backup user is present
+  user:
+    name: "{{ backup.user.name }}"
+    group: "{{ backup.user.group }}"
+  delegate_to: "{{ backup.host }}"
+
+- name: Make sure .ssh folder exists
+  file:
+    path: "{{ backup.user.home }}/.ssh"
+    state: directory
+    owner: "{{ backup.user.name }}"
+    group: "{{ backup.user.group }}"
+    mode: 0755
+  delegate_to: "{{ backup.host }}"
+
+- name: Ensure backup directory exists
+  file:
+    path: "{{ backup.data_dir }}"
+    state: directory
+    owner: "{{ backup.user.name }}"
+    group: "{{ backup.user.group }}"
+  delegate_to: "{{ backup.host }}"
+
+- name: Make sure rsync is present
+  apt:
+    name: rsync
+    state: present
+  delegate_to: "{{ backup.host }}"
+
+- name: Add cron entry for restic-local
+  template:
+    src: backup-restic-local.cron.j2
+    dest: "/etc/cron.d/full-backup-restic-local"
+  delegate_to: "{{ backup.host }}"
+
+- name: Add cron entry for restic-external
+  template:
+    src: backup-restic-external.cron.j2
+    dest: "/etc/cron.d/full-backup-restic-external"
+  delegate_to: "{{ backup.host }}"
+
+# vim:ft=yaml:ai:si:ts=4:sw=4:et:

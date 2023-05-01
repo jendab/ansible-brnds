@@ -1,0 +1,11 @@
+---
+#  Role: backup
+#  Author: Jenda Brands (https://github.com/jendab)
+#  Description: All tasks for the backup role
+#
+
+
+- include_tasks: tasks_backup_host.yml
+- include_tasks: tasks_client.yml
+
+# vim:ft=yaml:ai:si:ts=4:sw=4:et:

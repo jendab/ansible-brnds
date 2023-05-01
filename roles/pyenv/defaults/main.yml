@@ -1,0 +1,14 @@
+---
+#
+#  Role: pyenv
+#  Author: Jenda Brands (https://github.com/jendab)
+#  Description: All defaults for the pyenv role
+#
+
+pyenv:
+  group: "pyenv"
+  repo: "https://github.com/pyenv/pyenv.git"
+  install_path: "/opt/pyenv"
+  profile_path: "/etc/profile.d/pyenv.sh"
+  venv:
+    repo: "https://github.com/pyenv/pyenv-virtualenv.git"

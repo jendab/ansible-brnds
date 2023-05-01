@@ -1,0 +1,15 @@
+---
+#
+#  Role: homeassistant
+#  Author: Jenda Brands (https://github.com/jendab)
+#  Description: All defaults for the homeassistant role
+#
+
+homeassistant:
+  user: hass
+  group: hass
+  install_path: "/opt/pyenv/versions/hass"
+  config_path: "/home/hass/.homeassistant"
+  python_version: "3.10.7"
+
+# vim:ft=yaml:ai:si:ts=4:sw=4:et:

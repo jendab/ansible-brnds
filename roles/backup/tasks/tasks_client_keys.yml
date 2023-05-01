@@ -1,0 +1,12 @@
+- name: Get public key
+  slurp:
+    src: "{{ backup.user.home }}/.ssh/id_ed25519_{{ bak.app }}_{{ path.title }}.pub"
+  register: pubkey
+  delegate_to: "{{ backup.host }}"
+
+- name: Manage authorized keys
+  template:
+    src: authorized_keys.j2
+    dest: "/root/.ssh/authorized_keys_{{ bak.app }}_{{ path.title }}"
+    mode: 0644
+  notify: Backup - Combine authorized_keys

@@ -1,0 +1,12 @@
+---
+#
+#  Playbook: Maintenance playbook
+#  Author: Jenda Brands (https://github.com/jendab)
+#  Description: General maintenance playbook
+#
+
+
+- hosts: all
+  user: root
+  roles:
+    - { role: homeassistant,   when: "'homeassistant_servers' in group_names", tags: ['homeassistant']   }

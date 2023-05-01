@@ -1,0 +1,21 @@
+---
+#  Role: homeassistant
+#  Author: Jenda Brands (https://github.com/jendab)
+#  Description: All tasks for the homeassistant role
+#
+
+- name: Upgrade homeassistant
+  pip:
+    name: ['homeassistant', 'pymysql', 'mysqlclient']
+    virtualenv: "{{ homeassistant.install_path }}"
+    virtualenv_python: "python{{ homeassistant.python_version }}"
+    state: latest
+  become: yes
+  become_user: hass
+  register: upgrade
+
+- name: Start homeassistant
+  systemd:
+    name: hass
+    enabled: yes
+    state: "{% if upgrade.changed %}restarted{% else %}started{% endif %}"

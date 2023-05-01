@@ -1,0 +1,84 @@
+---
+#  Role: pyenv
+#  Author: Jenda Brands (https://github.com/jendab)
+#  Description: All tasks for the pyenv role
+#
+
+- name: Add pyenv group
+  group:
+    name: "{{ pyenv.group }}"
+
+- name: Install prerequisites
+  apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - build-essential
+    - libssl-dev
+    - zlib1g-dev
+    - libbz2-dev
+    - libreadline-dev
+    - libsqlite3-dev
+    - curl
+    - libncursesw5-dev
+    - xz-utils
+    - tk-dev
+    - libxml2-dev
+    - libxmlsec1-dev
+    - libffi-dev 
+    - liblzma-dev
+
+- name: Check if pyenv is installed
+  stat:
+    path: "{{ pyenv.install_path }}"
+  register: installed
+
+- name: Check if pyenv-virtualenv is installed
+  stat:
+    path: "{{ pyenv.install_path }}/plugins/pyenv-virtualenv"
+  register: pyvenv
+
+- name: Install pyenv
+  git:
+    repo: "{{ pyenv.repo }}"
+    dest: "{{ pyenv.install_path }}"
+  when: not (installed.stat.isdir is defined and installed.stat.isdir)
+
+- name: Install pyenv-virtualenv
+  git:
+    repo: "{{ pyenv.venv.repo }}"
+    dest: "{{ pyenv.install_path }}/plugins/pyenv-virtualenv"
+  when: not (pyvenv.stat.isdir is defined and pyvenv.stat.isdir)
+
+- name: Manage profile file
+  lineinfile:
+    dest: "{{ pyenv.profile_path }}"
+    line: "{{ item }}"
+    create: true
+  loop:
+    - 'export PYENV_ROOT="{{ pyenv.install_path }}"'
+    - 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"'
+    - 'eval "$(pyenv init -)"'
+    - 'eval "$(pyenv virtualenv-init -)"'
+
+- name: Check if python version is installed
+  stat:
+    path: "{{ pyenv.install_path }}/versions/{{ python_version }}"
+  register: pyenv_ver
+  when: python_version is defined
+
+- name: Install required python version
+  shell: "bash -c 'source /etc/profile.d/pyenv.sh && {{ pyenv.install_path }}/bin/pyenv install {{ python_version }}'"
+  when: not (pyenv_ver.stat.isdir is defined and pyenv_ver.stat.isdir) and python_version is defined
+
+- name: Configure pyenv
+  shell: 'eval "$({{ pyenv.install_path }}/bin/pyenv init -)"'
+
+- name: Manage permissions for pyenv folder
+  file:
+    path: "{{ pyenv.install_path }}"
+    group: "{{ pyenv.group }}"
+    mode: 0775
+    recurse: true
+
+# vim:ft=yaml:ai:si:ts=4:sw=4:et:

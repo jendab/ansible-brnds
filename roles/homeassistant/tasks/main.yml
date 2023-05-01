@@ -1,0 +1,16 @@
+---
+#
+#  Role: homeassistant
+#  Author: Jenda Brands (https://github.com/jendab)
+#  Description: Main tasks file, in order to determine right file(s) to include.
+#
+
+- include: '{{ item }}'
+  with_first_found:
+    - files:
+      - "tasks_{{ run_mode|default('maintenance') }}_{{ ansible_distribution|lower }}_{{ ansible_distribution_major_version|lower }}.yml"
+      - "tasks_{{ run_mode|default('maintenance') }}_{{ ansible_distribution|lower }}.yml"
+      - "tasks_{{ run_mode|default('maintenance') }}.yml"
+      skip: true
+
+# vim:ft=yaml:ai:si:ts=4:sw=4:et:

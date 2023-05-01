@@ -1,0 +1,25 @@
+---
+#  Host: HASSHOST
+#  Author: Jenda Brands (https://github.com/jendab)
+#  Description: Homeassistant host
+
+hostname: HASSHOST
+
+ansible_host: &mgt_addr 198.51.100.21
+ansible_host_v6: &mgt_addr_v6 2001:DB8::21
+
+nics:
+  - name: enp1s0
+    v4:
+      - config: static
+        address: *mgt_addr
+        netmask: 255.255.255.0
+        gateway: 198.51.100.1
+    v6:
+      config: static
+      address: *mgt_addr_v6
+      netmask: 64
+      gateway: 2001:DB8::1
+
+
+# vim:ft=yaml:ai:si:ts=4:sw=4:et:
